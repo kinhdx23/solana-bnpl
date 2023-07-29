@@ -4,6 +4,18 @@ const mongoose = require("mongoose");
 const config = require("../../../config");
 require("../models/mongoose");
 const User = mongoose.model("userModel");
+const {
+  Account,
+  Keypair,
+  Connection,
+  SystemProgram,
+  Transaction,
+  sendAndConfirmTransaction,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} = require("@solana/web3.js");
+const bs58 = require("bs58");
+const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 // module.exports.register = async (res, parameters) => {
 //   const { password, passwordConfirmation, email, username, name, lastName } =
@@ -33,7 +45,7 @@ const User = mongoose.model("userModel");
 //   }
 // };
 
-module.exports.sendSol = async (res, parameters) => {
+module.exports.sendSol = async (req, res) => {
   try {
     const { sourcePrivateKey, destinationAddress, amount } = req.body;
 
