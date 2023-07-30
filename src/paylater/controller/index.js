@@ -49,7 +49,7 @@ const axios = require('axios')
 // };
 
 module.exports.sendSol = async (req, res) => {
-  const { sourcePrivateKey, destinationAddress, amount } = req.body;
+  const { sourcePrivateKey, destinationAddress, amount, intentSecretKey, sessionId } = req.body;
   try {
 
     //const sourcePrivateKeyBuffer = Buffer.from(sourcePrivateKey, 'hex');
