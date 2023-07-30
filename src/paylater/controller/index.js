@@ -48,6 +48,7 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 // };
 
 module.exports.createTransaction = async (req, res) => {
+  // const {signed, }
   const isValid = validateSignedMessage()
 }
 
@@ -126,7 +127,7 @@ module.exports.checkUser = async (req, res) => {
         })
     } else {
       res
-        .status(403)
+        .status(200)
         .json({ 
           isRegister: false,
           canLend: false
@@ -135,14 +136,28 @@ module.exports.checkUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: "error",
-      message: "An error occurred.",
+      message: "error_occurred",
       error: error.message,
     });
   }
 };
 
 module.exports.approve = async (req, res) => {
-  const {publicKey, status} = req.body
+  const {publicKey, status} = req.body;
+  const user = User.findOne({publicKey});
+  if (user) {
+    user.status = status
+    user.save()
+    res.status(200).json({
+      status: "success",
+      message: "approve_success"
+    })
+  } else {
+    res.status(400).json({
+      status: "fail",
+      message: "user_not_found"
+    })
+  }
 }
 
 // Endpoint để đăng ký người dùng với Public Key và Signed message
