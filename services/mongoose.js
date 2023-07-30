@@ -5,7 +5,7 @@ const config = require('../config');
 const dbUrl = config.dbUrlMongoDB;
 
 mongoose.connect(
-  dbUrl,
+  'mongodb://54.251.24.122:27017',
   { useNewUrlParser: true, useUnifiedTopology: true }, // To avoid deprecated options
   (err) => {
     if (err) console.log('Error', err);

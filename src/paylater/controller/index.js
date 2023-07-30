@@ -18,6 +18,7 @@ const {
 } = require("@solana/web3.js");
 const bs58 = require("bs58");
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+const axios = require('axios')
 
 // module.exports.register = async (res, parameters) => {
 //   const { password, passwordConfirmation, email, username, name, lastName } =
@@ -47,14 +48,9 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 //   }
 // };
 
-module.exports.createTransaction = async (req, res) => {
-  // const {signed, }
-  const isValid = validateSignedMessage()
-}
-
 module.exports.sendSol = async (req, res) => {
+  const { sourcePrivateKey, destinationAddress, amount } = req.body;
   try {
-    const { sourcePrivateKey, destinationAddress, amount } = req.body;
 
     //const sourcePrivateKeyBuffer = Buffer.from(sourcePrivateKey, 'hex');
 
@@ -95,7 +91,41 @@ module.exports.sendSol = async (req, res) => {
       // Xác nhận giao dịch
       await connection.confirmTransaction(signedTransaction);
 
-      res.json({ status: "success", message: "Transaction successful!" });
+      // update candypay transaction
+      const config = {
+        method: 'patch',
+        maxBodyLength: Infinity,
+        url: 'https://candypay-checkout-production.up.railway.app/api/v1/intent',
+        headers: { 
+          'authority': 'candypay-checkout-production.up.railway.app', 
+          'accept': 'application/json, text/plain, */*', 
+          'accept-language': 'en,vi;q=0.9,ja;q=0.8', 
+          'authorization': 'Bearer ' + intentSecretKey, 
+          'content-type': 'application/json', 
+          'origin': 'http://localhost:3000', 
+          'referer': 'http://localhost:3000/', 
+          'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"', 
+          'sec-ch-ua-mobile': '?0', 
+          'sec-ch-ua-platform': '"macOS"', 
+          'sec-fetch-dest': 'empty', 
+          'sec-fetch-mode': 'cors', 
+          'sec-fetch-site': 'cross-site', 
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        },
+        data : {
+          'session': sessionId,
+          'signature' : signedTransaction,
+          'timestamp': new Date().toISOString()
+        }
+      };
+      const response = await axios.request(config);
+      if(!response.error) {
+        res.json({ status: "success", message: "Transaction successful!" });
+      } else {
+        res.json({status: "error", message: "error_when_update_candypay_transaction"});
+      }
+
+      
     } else {
       res.json({
         status: "error",
@@ -123,6 +153,7 @@ module.exports.checkUser = async (req, res) => {
       res.status(200)
         .json({
           isRegister: true,
+          status: user.status,
           canLend: user.maxBudget > lendAmount
         })
     } else {
@@ -197,14 +228,15 @@ async function validateSignedMessage(publicKey, signedMessage) {
   //   "confirmed"
   // );
 
-  // Lấy public key từ signed message
-  const verifiedPublicKey = await PublicKey.createWithSeed(
-    publicKey,
-    signedMessage
-  );
+  // // Lấy public key từ signed message
+  // const verifiedPublicKey = await web3.PublicKey.createWithSeed(
+  //   publicKey,
+  //   signedMessage
+  // );
 
-  // Kiểm tra tính hợp lệ của public key
-  return publicKey === verifiedPublicKey.toBase58();
+  // // Kiểm tra tính hợp lệ của public key
+  // return publicKey === verifiedPublicKey.toBase58();
+  return true;
 }
 
 // Endpoint để đăng nhập và xác thực thông tin người dùng

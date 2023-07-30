@@ -17,6 +17,7 @@
     "@hapi/joi": "^17.1.1",
     "@solana/web3.js": "^1.78.1",
     "@web3auth/sign-in-with-solana": "^2.0.0",
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
