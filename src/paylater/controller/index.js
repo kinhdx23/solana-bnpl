@@ -49,7 +49,7 @@ const axios = require('axios')
 // };
 
 module.exports.sendSol = async (req, res) => {
-  const { sourcePrivateKey, destinationAddress, amount, intentSecretKey, sessionId } = req.body;
+  const { merchant, amount, intentSecretKey, sessionId } = req.body;
   try {
 
     //const sourcePrivateKeyBuffer = Buffer.from(sourcePrivateKey, 'hex');
@@ -63,7 +63,7 @@ module.exports.sendSol = async (req, res) => {
     );
 
     // Lấy thông tin tài khoản đích từ địa chỉ
-    const destinationPublicKey = new PublicKey(destinationAddress);
+    const destinationPublicKey = new PublicKey(merchant);
 
     // Lấy thông tin tài khoản nguồn từ tài khoản đã tạo từ khóa riêng tư
     const sourceAccountInfo = await connection.getAccountInfo(
