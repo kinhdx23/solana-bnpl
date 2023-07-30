@@ -1,6 +1,5 @@
-
 // import {Payload, Header, SIWS} from '@web3auth/sign-in-with-solana'
-const {Payload, Header, SIWS} = require('@web3auth/sign-in-with-solana')
+const { Payload, Header, SIWS } = require("@web3auth/sign-in-with-solana");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const config = require("../../../config");
@@ -17,8 +16,8 @@ const {
   PublicKey,
 } = require("@solana/web3.js");
 const bs58 = require("bs58");
-const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
-const axios = require('axios')
+const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+const axios = require("axios");
 
 // module.exports.register = async (res, parameters) => {
 //   const { password, passwordConfirmation, email, username, name, lastName } =
@@ -51,7 +50,6 @@ const axios = require('axios')
 module.exports.sendSol = async (req, res) => {
   const { sourcePrivateKey, destinationAddress, amount, intentSecretKey, sessionId } = req.body;
   try {
-
     //const sourcePrivateKeyBuffer = Buffer.from(sourcePrivateKey, 'hex');
 
     //const sourceAccount = new Account(sourcePrivateKeyBuffer);
@@ -93,39 +91,42 @@ module.exports.sendSol = async (req, res) => {
 
       // update candypay transaction
       const config = {
-        method: 'patch',
+        method: "patch",
         maxBodyLength: Infinity,
-        url: 'https://candypay-checkout-production.up.railway.app/api/v1/intent',
-        headers: { 
-          'authority': 'candypay-checkout-production.up.railway.app', 
-          'accept': 'application/json, text/plain, */*', 
-          'accept-language': 'en,vi;q=0.9,ja;q=0.8', 
-          'authorization': 'Bearer ' + intentSecretKey, 
-          'content-type': 'application/json', 
-          'origin': 'http://localhost:3000', 
-          'referer': 'http://localhost:3000/', 
-          'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"', 
-          'sec-ch-ua-mobile': '?0', 
-          'sec-ch-ua-platform': '"macOS"', 
-          'sec-fetch-dest': 'empty', 
-          'sec-fetch-mode': 'cors', 
-          'sec-fetch-site': 'cross-site', 
-          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        url: "https://candypay-checkout-production.up.railway.app/api/v1/intent",
+        headers: {
+          authority: "candypay-checkout-production.up.railway.app",
+          accept: "application/json, text/plain, */*",
+          "accept-language": "en,vi;q=0.9,ja;q=0.8",
+          authorization: "Bearer " + intentSecretKey,
+          "content-type": "application/json",
+          origin: "http://localhost:3000",
+          referer: "http://localhost:3000/",
+          "sec-ch-ua":
+            '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": '"macOS"',
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "cross-site",
+          "user-agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         },
-        data : {
-          'session': sessionId,
-          'signature' : signedTransaction,
-          'timestamp': new Date().toISOString()
-        }
+        data: {
+          session: sessionId,
+          signature: signedTransaction,
+          timestamp: new Date().toISOString(),
+        },
       };
       const response = await axios.request(config);
-      if(!response.error) {
+      if (!response.error) {
         res.json({ status: "success", message: "Transaction successful!" });
       } else {
-        res.json({status: "error", message: "error_when_update_candypay_transaction"});
+        res.json({
+          status: "error",
+          message: "error_when_update_candypay_transaction",
+        });
       }
-
-      
     } else {
       res.json({
         status: "error",
@@ -150,19 +151,16 @@ module.exports.checkUser = async (req, res) => {
     const user = await User.findOne({ publicKey });
 
     if (user) {
-      res.status(200)
-        .json({
-          isRegister: true,
-          status: user.status,
-          canLend: user.maxBudget > lendAmount
-        })
+      res.status(200).json({
+        isRegister: true,
+        status: user.status,
+        canLend: user.maxBudget > lendAmount,
+      });
     } else {
-      res
-        .status(200)
-        .json({ 
-          isRegister: false,
-          canLend: false
-         });
+      res.status(200).json({
+        isRegister: false,
+        canLend: false,
+      });
     }
   } catch (error) {
     res.status(500).json({
@@ -174,22 +172,22 @@ module.exports.checkUser = async (req, res) => {
 };
 
 module.exports.approve = async (req, res) => {
-  const {publicKey, status} = req.body;
-  const user = User.findOne({publicKey});
+  const { publicKey, status } = req.body;
+  const user = User.findOne({ publicKey });
   if (user) {
-    user.status = status
-    user.save()
+    user.status = status;
+    user.save();
     res.status(200).json({
       status: "success",
-      message: "approve_success"
-    })
+      message: "approve_success",
+    });
   } else {
     res.status(400).json({
       status: "fail",
-      message: "user_not_found"
-    })
+      message: "user_not_found",
+    });
   }
-}
+};
 
 // Endpoint để đăng ký người dùng với Public Key và Signed message
 module.exports.register = async (req, res) => {
@@ -205,9 +203,9 @@ module.exports.register = async (req, res) => {
     }
 
     const maxBudget = 10;
-
+    console.log({ publicKey, maxBudget, signedMessage });
     // Tạo người dùng mới trong cơ sở dữ liệu
-    const user = new User({ publicKey, signedMessage, maxBudget});
+    const user = new User({ publicKey, signedMessage, maxBudget });
     await user.save();
 
     res.json({ status: "success", message: "User registered successfully." });
