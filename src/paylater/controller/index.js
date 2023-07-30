@@ -1,4 +1,6 @@
-const Bcrypt = require("bcrypt");
+
+// import {Payload, Header, SIWS} from '@web3auth/sign-in-with-solana'
+const {Payload, Header, SIWS} = require('@web3auth/sign-in-with-solana')
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const config = require("../../../config");
@@ -44,6 +46,10 @@ const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
 //     });
 //   }
 // };
+
+module.exports.createTransaction = async (req, res) => {
+  const isValid = validateSignedMessage()
+}
 
 module.exports.sendSol = async (req, res) => {
   try {
@@ -107,17 +113,24 @@ module.exports.sendSol = async (req, res) => {
 // Endpoint để kiểm tra Public Key đã được đăng ký trong Database hay chưa
 module.exports.checkUser = async (req, res) => {
   try {
-    const { publicKey } = req.body; // Public Key từ dữ liệu gửi lên
+    const { publicKey, lendAmount } = req.body; // Public Key từ dữ liệu gửi lên
 
     // Tìm người dùng với Public Key tương ứng trong Database
     const user = await User.findOne({ publicKey });
 
     if (user) {
-      res.json({ status: "ok", message: "Public Key is registered." });
+      res.status(200)
+        .json({
+          isRegister: true,
+          canLend: user.maxBudget > lendAmount
+        })
     } else {
       res
         .status(403)
-        .json({ status: "error", message: "You are not eligible." });
+        .json({ 
+          isRegister: false,
+          canLend: false
+         });
     }
   } catch (error) {
     res.status(500).json({
@@ -127,6 +140,10 @@ module.exports.checkUser = async (req, res) => {
     });
   }
 };
+
+module.exports.approve = async (req, res) => {
+  const {publicKey, status} = req.body
+}
 
 // Endpoint để đăng ký người dùng với Public Key và Signed message
 module.exports.register = async (req, res) => {
@@ -141,8 +158,10 @@ module.exports.register = async (req, res) => {
         .json({ status: "error", message: "Invalid Signed message." });
     }
 
+    const maxBudget = 10;
+
     // Tạo người dùng mới trong cơ sở dữ liệu
-    const user = new User({ publicKey, signedMessage });
+    const user = new User({ publicKey, signedMessage, maxBudget});
     await user.save();
 
     res.json({ status: "success", message: "User registered successfully." });
