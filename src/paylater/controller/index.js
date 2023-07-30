@@ -71,23 +71,29 @@ module.exports.sendSol = async (req, res) => {
     // Kiểm tra số dư của tài khoản nguồn
     if (sourceAccountInfo && sourceAccountInfo.lamports >= amount) {
       // Tạo giao dịch chuyển tiền
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: sourceAccount.publicKey,
+      let c = {
+        fromPubkey: sourceAccount.publicKey,
           toPubkey: destinationPublicKey,
           lamports: Math.round((amount / 24) * LAMPORTS_PER_SOL),
+      }
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          ...c
         })
       );
+        console.log("123")
 
+       let signedTransaction = await sendAndConfirmTransaction(connection, transaction,[sourceAccount])
       // Ký giao dịch bằng khóa riêng tư của tài khoản nguồn
-      const signedTransaction = await connection.sendTransaction(transaction, [
-        sourceAccount,
-      ]);
+      // const signedTransaction = await connection.sendTransaction(transaction, [
+      //   sourceAccount,
+      // ]);
+      // console.log("222")
 
       console.log(`signedTransaction` + signedTransaction);
 
       // Xác nhận giao dịch
-      await connection.confirmTransaction(signedTransaction);
+      // await connection.confirmTransaction(signedTransaction);
 
       // update candypay transaction
       const config = {
@@ -113,7 +119,7 @@ module.exports.sendSol = async (req, res) => {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         },
         data: {
-          session: sessionId,
+          session_id: sessionId,
           signature: signedTransaction,
           timestamp: new Date().toISOString(),
         },
@@ -134,6 +140,7 @@ module.exports.sendSol = async (req, res) => {
       });
     }
   } catch (error) {
+    console.error(error)
     res.status(500).json({
       status: "error",
       message: "An error occurred.",
