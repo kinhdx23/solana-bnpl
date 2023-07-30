@@ -75,7 +75,7 @@ module.exports.sendSol = async (req, res) => {
         SystemProgram.transfer({
           fromPubkey: sourceAccount.publicKey,
           toPubkey: destinationPublicKey,
-          lamports: 0.001 * LAMPORTS_PER_SOL,
+          lamports: amount * 24,
         })
       );
 
