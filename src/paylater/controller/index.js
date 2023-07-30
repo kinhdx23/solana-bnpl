@@ -192,10 +192,10 @@ module.exports.register = async (req, res) => {
 // Hàm để xác thực thông tin người dùng bằng Signed message
 async function validateSignedMessage(publicKey, signedMessage) {
   // Cài đặt thông tin kết nối với mạng Solana (đổi lại với địa chỉ cluster Solana của bạn)
-  const connection = new web3.Connection(
-    "https://api.devnet.solana.com",
-    "confirmed"
-  );
+  // const connection = new web3.Connection(
+  //   "https://api.devnet.solana.com",
+  //   "confirmed"
+  // );
 
   // Lấy public key từ signed message
   const verifiedPublicKey = await web3.PublicKey.createWithSeed(
