@@ -198,7 +198,7 @@ async function validateSignedMessage(publicKey, signedMessage) {
   // );
 
   // Lấy public key từ signed message
-  const verifiedPublicKey = await web3.PublicKey.createWithSeed(
+  const verifiedPublicKey = await PublicKey.createWithSeed(
     publicKey,
     signedMessage
   );
